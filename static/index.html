@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Netzwerkübersicht</title>
+  <style>
+    body { font-family: sans-serif; margin: 1rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    .online { color: green; font-weight: bold; }
+    .offline { color: red; font-weight: bold; }
+    select { margin-top: 1rem; padding: 0.4rem; }
+  </style>
+</head>
+<body>
+  <h1>Aktive Geräte im Netzwerk</h1>
+
+  <label for="filter">Filter:</label>
+  <select id="filter" onchange="loadHosts()">
+    <option value="all">Alle</option>
+    <option value="online">Nur Online</option>
+    <option value="offline">Nur Offline</option>
+  </select>
+
+  <table id="network-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>IP</th>
+        <th>Status</th>
+        <th>Ping (ms)</th>
+        <th>Netz</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadHosts() {
+      const response = await fetch('/hosts');
+      const data = await response.json();
+      const filter = document.getElementById('filter').value;
+      const tbody = document.querySelector('#network-table tbody');
+      tbody.innerHTML = '';
+
+      data.forEach(host => {
+        if (filter !== 'all' && host.status !== filter) return;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${host.name}</td>
+          <td>${host.ip}</td>
+          <td class="${host.status}">${host.status}</td>
+          <td>${host.delay ?? '-'}</td>
+          <td>${host.network}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadHosts();
+    setInterval(loadHosts, 30000); // alle 30 Sekunden neu laden
+  </script>
+</body>
+</html>
