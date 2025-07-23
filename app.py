@@ -4,7 +4,7 @@ import platform
 import time
 import ipaddress
 import netifaces
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 
 app = Flask(__name__)
 PING_CMD = "ping -c 1 -W 1" if platform.system() != "Windows" else "ping -n 1"
